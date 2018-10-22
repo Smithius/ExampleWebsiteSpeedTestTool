@@ -7,39 +7,45 @@ use Rules\IsSlower;
 use Rules\IsTwiceSlower;
 use Notifications\Email;
 use Notifications\Sms;
+use Entities\Report;
 
 class BenchmarkTest extends TestCase
 {
     public function testCanBeCreatedFromValidEmailAddress(): void
     {
-        $first = new \Entities\Measurement('xxx', 2);
-        $second = new \Entities\Measurement('yyy', 0.5);
-        $report = new \Entities\Report($first, [$second]);
+        $firstMeasurement = $this->generateMeasurement(2);
+        $secondMeasurement = $this->generateMeasurement(0.5);
+        $report = new Report($firstMeasurement, [$secondMeasurement]);
 
-        $mockValidEmail = $this->createMock(Email::class);
-        $mockValidEmail->expects($this->once())
-            ->method('notify');
-
-        $mockValidSms = $this->createMock(Sms::class);
-        $mockValidSms->expects($this->once())
-            ->method('notify');
-
+        $emailMock = $this->mockNotificationClass(Email::class);
+        $smsMock = $this->mockNotificationClass(Sms::class);
 
         $tr = (new TestRunner($report))
             ->addTest(
                 (new BenchmarkTestCase())
                     ->addRule(new IsSlower())
-                    ->addNotification($mockValidEmail)
+                    ->addNotification($emailMock)
             )
             ->addTest(
                 (new BenchmarkTestCase())
                     ->addRule(new IsTwiceSlower())
-                    ->addNotification($mockValidSms)
+                    ->addNotification($smsMock)
             );
 
         $tr->run();
     }
+
+    private function generateMeasurement(float $value)
+    {
+        return new \Entities\Measurement(uniqid() . '.com', $value);
+    }
+
+    private function mockNotificationClass(string $notification)
+    {
+        $mock = $this->createMock($notification);
+        $mock->expects($this->once())
+            ->method('notify');
+
+        return $mock;
+    }
 }
-
-
-

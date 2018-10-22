@@ -6,23 +6,32 @@ class RulesTest extends TestCase
 {
     public function testIsSlower()
     {
-        $first = new \Entities\Measurement('xxx', 2);
-        $second = new \Entities\Measurement('yyy', 0.5);
-        $third = new \Entities\Measurement('zzz', 2.5);
+        $firstMeasurement = $this->generateMeasurement(2);
+        $secondMeasurement = $this->generateMeasurement(0.5);
+        $thirdMeasurement = $this->generateMeasurement(2.5);
+
         $rule = new \Rules\IsSlower();
 
-        $this->assertTrue($rule->check($first, $second));
-        $this->assertFalse($rule->check($first, $third));
+        $this->assertTrue($rule->check($firstMeasurement, $secondMeasurement));
+        $this->assertTrue($rule->check($thirdMeasurement, $firstMeasurement));
+        $this->assertFalse($rule->check($firstMeasurement, $thirdMeasurement));
+        $this->assertFalse($rule->check($secondMeasurement, $firstMeasurement));
     }
 
     public function testIsTwiceSlower()
     {
-        $first = new \Entities\Measurement('xxx', 2);
-        $second = new \Entities\Measurement('yyy', 0.5);
-        $third = new \Entities\Measurement('zzz', 2.5);
+        $firstMeasurement = $this->generateMeasurement(2);
+        $secondMeasurement = $this->generateMeasurement(0.5);
+        $thirdMeasurement = $this->generateMeasurement(2.5);
+
         $rule = new \Rules\IsTwiceSlower();
 
-        $this->assertTrue($rule->check($first, $second));
-        $this->assertFalse($rule->check($first, $third));
+        $this->assertTrue($rule->check($firstMeasurement, $secondMeasurement));
+        $this->assertFalse($rule->check($firstMeasurement, $thirdMeasurement));
+    }
+
+    private function generateMeasurement(float $value)
+    {
+        return new \Entities\Measurement(uniqid() . '.com', $value);
     }
 }
