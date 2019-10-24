@@ -1,7 +1,12 @@
 <?php declare(strict_types=1);
 
-use Benchmarks\Measurer;
-use Entities\Measurement;
+use Benchmarks\CaseStudy;
+use Notifications\Email;
+use Notifications\Sms;
+use Outputs\Console;
+use Outputs\File;
+use Rules\IsFaster;
+use Rules\IsTwiceFaster;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -10,61 +15,46 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ConsoleCommand extends Command
 {
     /**
-     * @var Measurer
+     * @var PageSpeedTool
      */
-    private $measurer;
+    private $pageSpeedTool;
 
     public function __construct(?string $name = null)
     {
         parent::__construct($name);
-        $this->measurer = new Measurer();
+
+        $this->pageSpeedTool = new PageSpeedTool();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
-            ->addArgument('websiteUrl', InputArgument::REQUIRED, 'Tested page url')
-            ->addArgument('otherWebsitesUrls', InputArgument::REQUIRED, 'Compared pages urls separated by semicolon');
+            ->addArgument('baseUrl', InputArgument::REQUIRED, 'Tested page url')
+            ->addArgument(
+                'comparedUrls',
+                InputArgument::IS_ARRAY | InputArgument::REQUIRED,
+                'Compared pages urls (separate multiple urls with a space)'
+            );
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
-        $websiteUrl = $input->getArgument('websiteUrl');
-        $otherWebsitesUrls = $this->parseCompUrls($input->getArgument('otherWebsitesUrls'));
+        $baseUrl = $input->getArgument('baseUrl');
+        $comparedUrls = $input->getArgument('comparedUrls');
 
-        $testedWebsite = $this->measureWebsite($websiteUrl);
-
-        if (!$testedWebsite) {
-            throw new Exception('Can\'t measure tested website');
-        }
-
-        $comparedWebsites = [];
-        foreach ($otherWebsitesUrls as $url) {
-            $measurement = $this->measureWebsite($url, $testedWebsite);
-
-            if ($measurement) {
-                $comparedWebsites[] = $measurement;
-            }
-        }
-
-        $cm = new ComparisonManager($testedWebsite, $comparedWebsites);
-        $cm->setOutput($output)
-            ->run();
-    }
-
-    private function measureWebsite($websiteUrl, $parent = null): ?Measurement
-    {
-        $measurement = $this->measurer->measure($websiteUrl);
-
-        if ($measurement && $parent) {
-            $measurement->setParentMeasurement($parent);
-        }
-
-        return $measurement;
-    }
-
-    private function parseCompUrls(string $comparedUrls): array
-    {
-        return explode(';', $comparedUrls);
+        (new PageSpeedTool())
+            ->addOutput(new Console($output))
+            ->addOutput(new File('test.log'))
+            ->addCaseStudy(
+                (new CaseStudy())
+                    ->addRule(new IsFaster())
+                    ->addNotification(new Email())
+            )
+            ->addCaseStudy(
+                (new CaseStudy())
+                    ->addRule(new IsTwiceFaster())
+                    ->addNotification(new Sms())
+            )
+            ->run($baseUrl, $comparedUrls);
     }
 }

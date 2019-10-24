@@ -2,11 +2,11 @@
 
 namespace Notifications;
 
-use Entities\Report;
+use Entities\MeasureReport;
 
 class Sms implements NotificationInterface
 {
-    public function notify(Report $report): void
+    public function notify(MeasureReport $report, ?array $brokenRules): void
     {
         // SMS >>>
     }

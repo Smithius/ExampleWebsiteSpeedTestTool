@@ -5,11 +5,6 @@ namespace Entities;
 class Measurement
 {
     /**
-     * @var Measurement
-     */
-    private $parentMeasurement = null;
-
-    /**
      * @var string
      */
     private $url;
@@ -18,12 +13,6 @@ class Measurement
      * @var float
      */
     private $time;
-
-    public function __construct(string $url, float $time)
-    {
-        $this->url = $url;
-        $this->time = $time;
-    }
 
     public function getUrl(): string
     {
@@ -47,22 +36,5 @@ class Measurement
         $this->time = $time;
 
         return $this;
-    }
-
-    public function getParentMeasurement(): ?Measurement
-    {
-        return $this->parentMeasurement;
-    }
-
-    public function setParentMeasurement(Measurement $parentMeasurement): Measurement
-    {
-        $this->parentMeasurement = $parentMeasurement;
-
-        return $this;
-    }
-
-    public function getTimeDiff(): float
-    {
-        return $this->parentMeasurement->getTime() - $this->getTime();
     }
 }

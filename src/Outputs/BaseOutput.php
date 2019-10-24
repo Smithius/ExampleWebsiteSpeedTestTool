@@ -6,17 +6,24 @@ use Entities\Measurement;
 
 abstract class BaseOutput implements OutputInterface
 {
-    public function formatToStringData(Measurement $measurement): string
+    protected $mask = "| %-30.30s | %-10.10s | %-10.10s |\n";
+
+    public function getHeader()
     {
-        return implode(" | ", $this->getOutputData($measurement));
+        return sprintf($this->mask, 'Page url', 'Time (sec)', 'Diff (sec)');
     }
 
-    public function getOutputData(Measurement $measurement): array
+    public function formatToStringData(Measurement $measurement, ?Measurement $baseMeasurement = null): string
+    {
+        return vsprintf($this->mask, $this->getOutputData($measurement, $baseMeasurement));
+    }
+
+    public function getOutputData(Measurement $measurement, ?Measurement $baseMeasurement = null): array
     {
         return [
             $measurement->getUrl(),
-            $measurement->getTime(),
-            $measurement->getParentMeasurement() ? $measurement->getTimeDiff() : '',
+            (string)$measurement->getTime(),
+            (string)($baseMeasurement ? $baseMeasurement->getTime() - $measurement->getTime() : ''),
         ];
     }
 }

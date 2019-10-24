@@ -2,9 +2,9 @@
 
 namespace Notifications;
 
-use Entities\Report;
+use Entities\MeasureReport;
 
 interface NotificationInterface
 {
-    public function notify(Report $report): void;
+    public function notify(MeasureReport $report, ?array $brokenRules): void;
 }

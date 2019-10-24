@@ -2,7 +2,7 @@
 
 namespace Outputs;
 
-use Entities\Report;
+use Entities\MeasureReport;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Console extends BaseOutput
@@ -17,12 +17,14 @@ class Console extends BaseOutput
         $this->output = $output;
     }
 
-    public function write(Report $report): void
+    public function write(MeasureReport $report): void
     {
-        $this->output->writeln($this->formatToStringData($report->getTestedWebsiteMeasurement()));
+        $this->output->write($this->getHeader());
+        $baseMeasurement = $report->getTestedWebsiteMeasurement();
+        $this->output->write($this->formatToStringData($baseMeasurement));
 
         foreach ($report->getComparedWebsitesMeasurements() as $pageMeasurement) {
-            $this->output->writeln($this->formatToStringData($pageMeasurement));
+            $this->output->write($this->formatToStringData($pageMeasurement, $baseMeasurement));
         }
     }
 }

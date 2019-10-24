@@ -2,7 +2,7 @@
 
 namespace Entities;
 
-class Report
+class MeasureReport
 {
     /**
      * @var Measurement
@@ -10,7 +10,7 @@ class Report
     private $testedWebsiteMeasurement;
 
     /**
-     * @var Measurement[]
+     * @var array|Measurement[]
      */
     private $comparedWebsitesMeasurements;
 
@@ -25,7 +25,7 @@ class Report
         return $this->testedWebsiteMeasurement;
     }
 
-    public function setTestedWebsiteMeasurement(Measurement $testedWebsiteMeasurement): Report
+    public function setTestedWebsiteMeasurement(Measurement $testedWebsiteMeasurement): MeasureReport
     {
         $this->testedWebsiteMeasurement = $testedWebsiteMeasurement;
 
@@ -37,7 +37,7 @@ class Report
         return $this->comparedWebsitesMeasurements;
     }
 
-    public function setComparedWebsitesMeasurements($comparedWebsitesMeasurements): Report
+    public function setComparedWebsitesMeasurements(array $comparedWebsitesMeasurements): MeasureReport
     {
         $this->comparedWebsitesMeasurements = $comparedWebsitesMeasurements;
 

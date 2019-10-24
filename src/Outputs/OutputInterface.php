@@ -2,9 +2,9 @@
 
 namespace Outputs;
 
-use Entities\Report;
+use Entities\MeasureReport;
 
 interface OutputInterface
 {
-    public function write(Report $report): void;
+    public function write(MeasureReport $report): void;
 }
